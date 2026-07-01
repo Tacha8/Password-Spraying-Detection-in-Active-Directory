@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This lab demonstrates how Active Directory enforces an Account Lockout Policy during a password spraying attack. A custom Group Policy was configured to lock a user account after three failed authentication attempts. The resulting account lockout was verified through Active Directory and Windows Security logs.
+This lab demonstrates how password spraying activity can be observed in an Active Directory environment and how Account Lockout Policy is enforced after repeated failed authentication attempts. A single incorrect password was used against multiple domain user accounts to simulate password spraying, and Windows Security logs were analyzed to investigate the resulting authentication events and account lockout.
 
 ---
 
@@ -18,7 +18,7 @@ This lab demonstrates how Active Directory enforces an Account Lockout Policy du
 
 ## Attack Overview
 
-Password spraying attempts one password against many user accounts to avoid triggering account lockouts. In this lab, three failed logon attempts were generated against a single domain user to demonstrate how Active Directory enforces the configured lockout policy.
+Password spraying is a password attack that attempts one common password against many user accounts to avoid triggering account lockout policies. In this lab, the same incorrect password was attempted against multiple Active Directory user accounts to generate authentication failures. Additional failed logons were then performed against one test account to demonstrate how Active Directory enforces its Account Lockout Policy once the configured threshold is exceeded.
 
 ---
 
@@ -42,21 +42,25 @@ Ran `gpupdate /force` on the domain-joined workstation to apply the updated poli
 
 ---
 
-### 3. Generate Failed Logons
+### 3. Simulate Password Spraying
 
-<img width="707" height="607" alt="image" src="https://github.com/user-attachments/assets/9153cdd6-ba39-4563-91e5-b10d61b736f0" />
+Attempted the same incorrect password against multiple domain user accounts.
 
+Verified Event ID 4771 (Kerberos pre authentication failed) was generated for each authentication attempt.
 
-Entered an incorrect password three times until the account was locked.
 
 ---
 
 ### 4. Investigate Windows Events
 
-<img width="646" height="605" alt="image" src="https://github.com/user-attachments/assets/c0d57e45-c895-479b-96cf-8020499e1644" />
+<img width="958" height="748" alt="image" src="https://github.com/user-attachments/assets/dd9b0b28-bb01-41b8-a14c-ae35fcddadb2" />
+
+<img width="1012" height="888" alt="image" src="https://github.com/user-attachments/assets/32a937be-ae43-445b-8d8b-b7913586700f" />
+
+<img width="842" height="566" alt="image" src="https://github.com/user-attachments/assets/7cabb588-cb3e-4c51-92a2-c87d6f1ac406" />
 
 
-Verified the account lockout using Windows Security logs.
+Reviewed the Security log to analyze the authentication failures and account lockout events and verified the account lockout using Windows Security logs.
 
 ---
 
