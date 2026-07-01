@@ -2,9 +2,7 @@
 
 ## Executive Summary
 
-This lab demonstrates how password spraying activity can be observed in an Active Directory environment and how Account Lockout Policy is enforced after repeated failed authentication attempts. A single incorrect password was used against multiple domain user accounts to simulate password spraying, and Windows Security logs were analyzed to investigate the resulting authentication events and account lockout.
-
----
+This lab demonstrates how password spraying activity can be identified in an Active Directory environment and how Account Lockout Policy responds to repeated authentication failures. A single incorrect password was used against multiple domain user accounts to simulate password spraying. Windows Security logs were then analyzed to investigate the resulting Kerberos authentication failures and account lockout events.
 
 ## Lab Environment
 
@@ -18,7 +16,7 @@ This lab demonstrates how password spraying activity can be observed in an Activ
 
 ## Attack Overview
 
-Password spraying is a password attack that attempts one common password against many user accounts to avoid triggering account lockout policies. In this lab, the same incorrect password was attempted against multiple Active Directory user accounts to generate authentication failures. Additional failed logons were then performed against one test account to demonstrate how Active Directory enforces its Account Lockout Policy once the configured threshold is exceeded.
+Password spraying is a password attack that attempts one common password against many user accounts to avoid triggering account lockout policies. In this lab, the same incorrect password was attempted against multiple Active Directory user accounts to generate Kerberos pre authentication failures. Additional authentication attempts against a single test account were then used to demonstrate how Active Directory enforces its Account Lockout Policy once the configured threshold is exceeded.
 
 ---
 
@@ -46,7 +44,7 @@ Ran `gpupdate /force` on the domain-joined workstation to apply the updated poli
 
 Attempted the same incorrect password against multiple domain user accounts.
 
-Verified Event ID 4771 (Kerberos pre authentication failed) was generated for each authentication attempt.
+Each authentication attempt generated Event ID 4771 (Kerberos pre authentication failed), allowing the activity to be observed in Windows Security logs.
 
 
 ---
@@ -68,7 +66,7 @@ Reviewed the Security log to analyze the authentication failures and account loc
 
 - Event ID **4771** – Kerberos pre-authentication failed
 - Event ID **4740** – User account locked out
-- Multiple failed logons against one or more accounts
+- Multiple Kerberos pre authentication failures across multiple user accounts
 - Sudden increase in authentication failures
 
 ---
@@ -81,7 +79,29 @@ Reviewed the Security log to analyze the authentication failures and account loc
 
 ## Lessons Learned
 
-- Active Directory tracks failed logons per user account.
-- Group Policy centrally manages account lockout settings.
-- Event ID 4740 confirms a successful account lockout.
-- Password spraying attempts to avoid account lockouts by spreading attempts across multiple users.
+- Password spraying attempts to avoid account lockout by distributing authentication attempts across multiple users.
+- Kerberos pre authentication failures provide valuable telemetry for identifying suspicious authentication activity.
+- Group Policy centrally enforces Account Lockout Policy across the domain.
+- Event ID 4740 confirms when the account lockout threshold has been reached.
+
+## Authentication Flow
+
+During each authentication attempt, Windows processes credentials through the following sequence:
+
+```text
+Credentials Submitted
+        ↓
+LSASS
+        ↓
+Kerberos Authentication
+        ↓
+Active Directory
+        ↓
+Update User State
+        ↓
+Evaluate Account Lockout Policy
+        ↓
+Generate Security Event
+        ↓
+Respond to Client
+```
